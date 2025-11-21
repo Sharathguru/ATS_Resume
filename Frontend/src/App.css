@@ -214,7 +214,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  max-height: 75vh;
+  max-height: 100vh;
   overflow-y: auto;
   padding-right: 0.5rem;
 }
@@ -271,15 +271,25 @@ textarea {
 .results-card {
   background: var(--surface-2);
   border-radius: 20px;
-  padding: 1.25rem;
+  padding: 1.5rem;
   border: 1px solid var(--border);
   min-height: 190px;
   display: flex;
   flex-direction: column;
+  transition: all 0.2s ease;
+}
+
+.results-card:hover {
+  border-color: rgba(78, 252, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(78, 252, 255, 0.05);
 }
 
 .results-card h3 {
   margin-top: 0;
+  color: var(--accent);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
 .score-card {
@@ -299,6 +309,21 @@ textarea {
   padding: 8px;
   margin: 0 auto 0.5rem;
   background: var(--surface-3);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.score-ring.loading {
+  animation: rotateScoreRing 2s linear infinite;
+}
+
+@keyframes rotateScoreRing {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .score-core {
@@ -356,6 +381,13 @@ textarea {
   padding-left: 1rem;
   margin: 0.5rem 0 0;
   flex: 1;
+  list-style-type: disc;
+}
+
+.suggestion-list li {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+  color: var(--text);
 }
 
 .resume-breakdown {
@@ -367,13 +399,85 @@ textarea {
 .breakdown-card {
   border: 1px solid var(--border);
   border-radius: 18px;
-  padding: 1rem;
-  background: rgba(12, 18, 28, 0.7);
+  padding: 1.25rem;
+  background: var(--surface-2);
+  transition: all 0.2s ease;
+}
+
+.breakdown-card:hover {
+  border-color: rgba(78, 252, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(78, 252, 255, 0.05);
+}
+
+.breakdown-card h3 {
+  color: var(--accent);
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
 }
 
 .breakdown-card ul {
   padding-left: 1rem;
   margin: 0.5rem 0 0;
+  list-style-type: disc;
+}
+
+.breakdown-card ul li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.experience-list {
+  padding-left: 0;
+  margin: 0.5rem 0 0;
+  list-style: none;
+}
+
+.experience-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: padding-left 0.2s ease;
+}
+
+.experience-item:hover {
+  padding-left: 0.5rem;
+}
+
+.experience-item:last-child {
+  border-bottom: none;
+}
+
+.experience-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.experience-company {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.experience-separator {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.experience-project {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.experience-year {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  font-style: italic;
 }
 
 .improved-resume {

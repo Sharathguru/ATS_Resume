@@ -18,6 +18,10 @@ export const submitScan = createAsyncThunk(
       return thunkAPI.rejectWithValue("Please log in to run a scan.");
     }
     try {
+      console.info("[SCAN] submitting request", {
+        fileName: file?.name,
+        jobDescriptionLength: jobDescription?.length,
+      });
       const formData = new FormData();
       formData.append("resume", file);
       formData.append("jobDescription", jobDescription);
@@ -32,12 +36,18 @@ export const submitScan = createAsyncThunk(
         throw new Error("Backend response missing data");
       }
 
+      console.info("[SCAN] backend response received", {
+        scanId: payload.scanId,
+        score: payload.score,
+      });
+
       return buildHistoryEntry({
         ...payload,
         originalFileName: file.name,
         jobDescription,
       });
     } catch (error) {
+      console.error("[SCAN] request failed", error);
       const message =
         error.response?.data?.message ||
         error.message ||

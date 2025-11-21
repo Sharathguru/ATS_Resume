@@ -16,7 +16,7 @@ const ScoreDial = ({ value = 0, isLoading = false }) => {
         className={`score-ring ${isLoading ? "loading" : ""}`}
         style={{
           background: isLoading
-            ? "var(--surface-3)"
+            ? "conic-gradient(var(--accent) 0deg, rgba(78, 252, 255, 0.3) 90deg, var(--surface-3) 180deg, rgba(78, 252, 255, 0.3) 270deg, var(--accent) 360deg)"
             : `conic-gradient(var(--accent) ${rotation}, var(--surface-3) 0deg)`,
         }}
       >
@@ -36,7 +36,7 @@ const ScoreDial = ({ value = 0, isLoading = false }) => {
       </div>
       <p>
         {isLoading
-          ? "Crunching resume vs JD keywords…"
+          ? "Analyzing keywords…"
           : `Higher than ${Math.round(score / 10) * 10}% of recent scans.`}
       </p>
     </div>

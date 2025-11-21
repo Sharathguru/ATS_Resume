@@ -67,10 +67,69 @@ const skillsEquivalent = (a, b) => {
   return subset(tokensA, setB) || subset(tokensB, setA);
 };
 
+const toStringArray = (value) => {
+  const normalizeEntry = (entry) => {
+    if (entry == null) return null;
+    if (typeof entry === "string") return entry.trim();
+    if (typeof entry === "object") return JSON.stringify(entry);
+    return String(entry);
+  };
+
+  if (!value) return [];
+
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => {
+        if (typeof entry === "string") {
+          return entry.trim();
+        }
+
+        if (typeof entry === "object") {
+          return JSON.stringify(entry);
+        }
+
+        return String(entry);
+      })
+      .filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return toStringArray(parsed);
+    } catch {
+      return value
+        .split(/\n+/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+    }
+  }
+
+  return [normalizeEntry(value)].filter(Boolean);
+};
+
 const matchJDandResume = AsyncHandler(async (req, res) => {
-  const { jobDescription } = req.body;
+  const { jobDescription, user } = req.body;
+
+  console.info("[SCAN] Incoming match request", {
+    userId: (req.user?.id || user)?.toString(),
+    jobDescriptionLength: jobDescription?.length,
+    fileName: req.file?.originalname,
+    mimeType: req.file?.mimetype,
+  });
+  console.time("scan_pipeline");
+
+  const userId = req.user?.id || user;
+  if (!userId) {
+    console.timeEnd("scan_pipeline");
+    return res.status(400).json({
+      success: false,
+      message: "User is required.",
+    });
+  }
 
   if (!jobDescription) {
+    console.timeEnd("scan_pipeline");
     return res.status(400).json({
       success: false,
       message: "Job description is required.",
@@ -78,6 +137,7 @@ const matchJDandResume = AsyncHandler(async (req, res) => {
   }
 
   if (!req.file) {
+    console.timeEnd("scan_pipeline");
     return res.status(400).json({
       success: false,
       message: "Resume file is required. Send it as form-data with key 'resume'.",
@@ -87,11 +147,16 @@ const matchJDandResume = AsyncHandler(async (req, res) => {
   let resumeText = "";
   try {
     resumeText = (await extractResumeText(req.file.path, req.file.mimetype)).trim();
+    console.info("[SCAN] Resume text extracted", {
+      resumeChars: resumeText.length,
+      fileStoredAt: req.file.path,
+    });
     if (!resumeText) {
       throw new Error("Unable to read resume content. Please upload a text-based resume.");
     }
   } catch (error) {
     await fs.unlink(req.file.path).catch(() => {});
+    console.timeEnd("scan_pipeline");
     return res.status(400).json({
       success: false,
       message: error.message || "Failed to read resume content.",
@@ -109,6 +174,10 @@ const matchJDandResume = AsyncHandler(async (req, res) => {
     ScanService.extractSkillsFromJD(jobDescription),
     ScanService.extractSkillsFromResume(resumeText),
   ]);
+  console.info("[SCAN] Skills extracted", {
+    jdSkills: jdSkills.length,
+    resumeSkills: resumeSkills.length,
+  });
 
   const matchedSkills = [];
   const missingKeywords = [];
@@ -145,11 +214,11 @@ const matchJDandResume = AsyncHandler(async (req, res) => {
   try {
     const summary = await ScanService.summarizeResume(resumeText);
     objective = summary.objective || objective;
-    experience = summary.experience || experience;
-    education = summary.education || education;
-    skillsTechnical = summary.skillsTechnical || skillsTechnical;
-    skillsSoft = summary.skillsSoft || skillsSoft;
-    projects = summary.projects || projects;
+    experience = toStringArray(summary.experience) || experience;
+    education = toStringArray(summary.education) || education;
+    skillsTechnical = toStringArray(summary.skillsTechnical) || skillsTechnical;
+    skillsSoft = toStringArray(summary.skillsSoft) || skillsSoft;
+    projects = toStringArray(summary.projects) || projects;
   } catch (error) {
     console.error("Resume summarize failed:", error.message || error);
   }
@@ -162,20 +231,20 @@ const matchJDandResume = AsyncHandler(async (req, res) => {
         missingKeywords,
       });
       improvedResumeContent = rewriteResult.improvedResume || resumeText;
-      rewriteSuggestions = rewriteResult.suggestions || [];
-      objective = rewriteResult.objective || "";
-      experience = rewriteResult.experience || [];
-      education = rewriteResult.education || [];
-      skillsTechnical = rewriteResult.skillsTechnical || [];
-      skillsSoft = rewriteResult.skillsSoft || [];
-      projects = rewriteResult.projects || [];
+      rewriteSuggestions = toStringArray(rewriteResult.suggestions);
+      objective = rewriteResult.objective || objective;
+      experience = toStringArray(rewriteResult.experience);
+      education = toStringArray(rewriteResult.education);
+      skillsTechnical = toStringArray(rewriteResult.skillsTechnical);
+      skillsSoft = toStringArray(rewriteResult.skillsSoft);
+      projects = toStringArray(rewriteResult.projects);
     } catch (error) {
       console.error("Resume rewrite failed:", error.message || error);
     }
   }
 
   const scanRecord = await Scan.create({
-    user: req.user?.id,
+    user: userId,
     resumeFileUrl,
     jobDescription,
     jdSkills,
@@ -216,6 +285,8 @@ const matchJDandResume = AsyncHandler(async (req, res) => {
       improvedResumeContent,
     },
   });
+  console.timeEnd("scan_pipeline");
+  console.info("[SCAN] Response sent", { scanId: scanRecord._id, score, missingKeywords: missingKeywords.length });
 });
 
 export default { matchJDandResume };

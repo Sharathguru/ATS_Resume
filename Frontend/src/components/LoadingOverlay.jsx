@@ -8,7 +8,6 @@ const LoadingOverlay = () => {
   return (
     <div className="loading-overlay" role="status" aria-live="assertive">
       <div className="spinner" />
-      <p>Analyzing resume and job description…</p>
     </div>
   );
 };

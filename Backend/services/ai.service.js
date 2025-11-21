@@ -27,15 +27,34 @@ class ScanServiceAI {
 
   async summarizeResume(resumeText) {
     if (!resumeText) return {};
-    const prompt = `Summarize this resume into JSON with keys objective (string), experience (array of bullet strings), education (array), skillsTechnical (array), skillsSoft (array), projects (array). Keep each entry concise but specific.\n\n${resumeText}`;
+    const prompt = `Summarize this resume into JSON with keys objective (string), experience (array of bullet strings), education (array), skillsTechnical (array), skillsSoft (array), projects (array). 
+
+IMPORTANT: 
+- For experience: Only include actual work experience with company names and employment periods (years). Do NOT include personal projects, academic projects, or project names that look like companies. If the person is a fresher with no work experience, return an empty array for experience.
+- For projects: Include all personal projects, academic projects, and project descriptions here.
+
+Format experience entries as: "Company Name - Role/Project (Year-Year)" or "Company Name (Year-Year)" if available.
+
+Keep each entry concise but specific.\n\n${resumeText}`;
     const raw = await this.callLLM(prompt);
     return this.safeJSONParse(raw, {});
   }
 
   async rewriteResume({ resumeText, jobDescription, missingKeywords }) {
-    const prompt = `You are optimizing a resume for ATS. Rewrite the resume content so it better aligns with the job description while staying truthful.\nReturn JSON with keys: improvedResume (string), suggestions (array of strings), objective (string), experience (array), education (array), skillsTechnical (array), skillsSoft (array), projects (array).\nMake sure to naturally include these missing keywords when appropriate: ${missingKeywords.join(
+    const prompt = `You are optimizing a resume for ATS. Rewrite the resume content so it better aligns with the job description while staying truthful.
+Return JSON with keys: improvedResume (string), suggestions (array of strings), objective (string), experience (array), education (array), skillsTechnical (array), skillsSoft (array), projects (array).
+
+IMPORTANT: 
+- For experience: Only include actual work experience with company names and employment periods. Do NOT include personal projects or academic projects. If no work experience exists, return empty array.
+- For projects: Include all personal/academic projects here.
+
+Format experience as: "Company Name - Role/Project (Year-Year)" when available.
+
+Make sure to naturally include these missing keywords when appropriate: ${missingKeywords.join(
       ", "
-    )}.\nResume:\n${resumeText}\nJob Description:\n${jobDescription}`;
+    )}.
+
+Resume:\n${resumeText}\nJob Description:\n${jobDescription}`;
     const raw = await this.callLLM(prompt);
     return this.safeJSONParse(raw, {
       improvedResume: resumeText,
