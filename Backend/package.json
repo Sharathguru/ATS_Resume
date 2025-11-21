@@ -1,0 +1,26 @@
+{
+  "name": "project-of-the-ats-resume",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "express-async-handler": "^1.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.11.0",
+    "mongoose": "^8.19.4",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^6.9.1",
+    "pdf-parse": "^2.4.5",
+    "validator": "^13.15.23"
+  }
+}
