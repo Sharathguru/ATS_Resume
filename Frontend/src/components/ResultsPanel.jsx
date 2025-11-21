@@ -1,7 +1,11 @@
 // import { formatDistanceToNow } from "date-fns";
 // import { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { selectCurrentScan, selectStatus } from "../features/scan/scanSlice";
+import {
+  selectCurrentScan,
+  selectResetView,
+  selectStatus,
+} from "../features/scan/scanSlice";
 // import ScoreDial from "./ScoreDial";
 // import TagList from "./TagList";
 
@@ -77,6 +81,7 @@ import { selectCurrentScan, selectStatus } from "../features/scan/scanSlice";
 const ResultsPanel = () => {
   const currentScan = useSelector(selectCurrentScan);
   const status = useSelector(selectStatus);
+  const resetView = useSelector(selectResetView);
   const isLoading = status === "loading";
 
   // const breakdown = useMemo(() => {
@@ -146,6 +151,20 @@ const ResultsPanel = () => {
   // const missingReasons = currentScan?.missingKeywordReasons || [];
   // const suggestions = currentScan?.rewriteSuggestions || [];
   const improvedContent = currentScan?.improvedResumeContent || "";
+
+  if (resetView) {
+    return (
+      <div className="results-panel empty-state">
+        <div className="results-panel-body">
+          <p className="eyebrow">Results</p>
+          <h2>Scan reset</h2>
+          <p className="muted-text">
+            Upload a resume and job description to generate a fresh rewrite and ATS score.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentScan && !isLoading) {
     return (

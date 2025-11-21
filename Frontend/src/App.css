@@ -56,6 +56,27 @@
   flex-wrap: wrap;
 }
 
+.header-score {
+  flex: 1 1 220px;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-score .score-ring {
+  width: 140px;
+  height: 140px;
+}
+
+.header-score.placeholder {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed var(--border);
+  border-radius: 20px;
+  padding: 1rem 1.5rem;
+  text-align: center;
+}
+
 .header-stats div {
   min-width: 120px;
 }

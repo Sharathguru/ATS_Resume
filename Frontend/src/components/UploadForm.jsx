@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   dismissError,
+  resetScanView,
   selectError,
   selectStatus,
   submitScan,
@@ -60,6 +61,7 @@ const UploadForm = () => {
     setResumeFile(null);
     setLocalError(null);
     dispatch(dismissError());
+    dispatch(resetScanView());
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 

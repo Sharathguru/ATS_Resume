@@ -64,6 +64,7 @@ const scanSlice = createSlice({
     history: initialHistory,
     status: "idle",
     error: null,
+    resetView: false,
   },
   reducers: {
     showHistoryScan: (state, action) => {
@@ -71,6 +72,7 @@ const scanSlice = createSlice({
       if (existing) {
         state.currentScan = existing;
         state.error = null;
+        state.resetView = false;
       }
     },
     clearHistory: (state) => {
@@ -81,12 +83,19 @@ const scanSlice = createSlice({
     dismissError: (state) => {
       state.error = null;
     },
+    resetScanView: (state) => {
+      state.currentScan = null;
+      state.error = null;
+      state.status = "idle";
+      state.resetView = true;
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(submitScan.pending, (state) => {
         state.status = "loading";
         state.error = null;
+        state.resetView = false;
       })
       .addCase(submitScan.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -96,6 +105,7 @@ const scanSlice = createSlice({
         );
         state.history = [action.payload, ...withoutDuplicate].slice(0, 8);
         saveHistory(state.history);
+        state.resetView = false;
       })
       .addCase(submitScan.rejected, (state, action) => {
         state.status = "failed";
@@ -107,17 +117,19 @@ const scanSlice = createSlice({
         state.status = "idle";
         state.error = null;
         saveHistory([]);
+        state.resetView = false;
       });
   },
 });
 
-export const { showHistoryScan, clearHistory, dismissError } = scanSlice.actions;
+export const { showHistoryScan, clearHistory, dismissError, resetScanView } = scanSlice.actions;
 
 export const selectScanState = (state) => state.scan;
 export const selectCurrentScan = (state) => state.scan.currentScan;
 export const selectHistory = (state) => state.scan.history;
 export const selectStatus = (state) => state.scan.status;
 export const selectError = (state) => state.scan.error;
+export const selectResetView = (state) => state.scan.resetView;
 
 export default scanSlice.reducer;
 
