@@ -12,7 +12,7 @@ const app=express()
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cors({
-    origin:process.env.CORS_ORIGIN || 'http://localhost:5173',
+    origin:process.env.CORS_ORIGIN || 'https://ats-resume-three.vercel.app',
     credentials:true,
 }))
 
