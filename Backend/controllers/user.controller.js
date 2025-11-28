@@ -41,6 +41,8 @@ const registerUser = AsyncHandler(async (req, res) => {
 
 // POST /api/users/login
 const loginUser = AsyncHandler(async (req, res) => {
+  console.log("login");
+  
   const { email, password } = req.body;
 
   if (!email || !password) {
