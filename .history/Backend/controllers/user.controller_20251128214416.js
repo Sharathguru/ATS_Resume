@@ -22,7 +22,7 @@ const sanitizeUser = (user) => ({
 
 // POST /api/users/register
 const registerUser = AsyncHandler(async (req, res) => {
-  console.log("started");
+  console.log("s");
   
   const { username, email, password, confirmPassword } = req.body;
 
